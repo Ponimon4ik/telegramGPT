@@ -46,9 +46,7 @@ docker-compose up -d
 ```
 
 Создать таблицу
-```
-docker container exec -t db bash
-```
+
 ```
 docker container exec -t db psql -U <POSTGRESS_USER> -d <POSTGRES_DB>
 ```

@@ -27,9 +27,12 @@ async def on_message(message: types.Message):
         response = await gpt_request(message.text)
         await message.reply(response)
     else:
+        payment_keyboard = get_payment_keyboard(user_id)
         await message.reply(
             "Пожалуйста, оплатите подписку "
-            "для продолжения использования бота."
+            "для продолжения использования бота.",
+            reply_markup=payment_keyboard
+
         )
 
 
@@ -38,7 +41,6 @@ async def on_callback_query(
     user_id = callback_query.from_user.id
     if callback_query.data.startswith("pay_tinkoff"):
         await SubscriptionStates.waiting_for_payment.set()
-
         payment_keyboard = get_payment_keyboard(user_id)
         await callback_query.bot.send_invoice(
             chat_id=user_id,
@@ -49,12 +51,10 @@ async def on_callback_query(
             prices=[LabeledPrice(label="Подписка", amount=10000)],
             reply_markup=payment_keyboard,
             payload=f"subscription:{user_id}",
-
         )
         await callback_query.answer()
-    elif callback_query.data.startswith("pay_ober"):
+    elif callback_query.data.startswith("pay_cber"):
         await SubscriptionStates.waiting_for_payment.set()
-
         payment_keyboard = get_payment_keyboard(user_id)
         await callback_query.bot.send_invoice(
             chat_id=user_id,
@@ -78,6 +78,18 @@ async def on_successful_payment(message: types.Message):
     )
 
 
+    # Вызов функции для обработки оплаты через Тинькофф
+    # await process_payment(user_id, 'tinkoff')
+
+async def process_payment_tinkoff(callback_query: types.CallbackQuery):
+    user_id = callback_query.from_user.id
+    await process_successful_payment(user_id)
+    await callback_query.message.reply(
+        "Оплата успешно проведена. "
+        "Теперь вы можете пользоваться ботом в течение 30 дней."
+    )
+
+
 def register_handlers(dp):
     dp.register_message_handler(on_start, Command("start"))
     dp.register_message_handler(
@@ -87,4 +99,8 @@ def register_handlers(dp):
     dp.register_message_handler(
         on_successful_payment,
         content_types=types.ContentTypes.SUCCESSFUL_PAYMENT
+    )
+    dp.register_callback_query_handler(
+        process_payment_tinkoff,
+        lambda c: c.data.startswith('pay_tinkoff:') or c.data.startswith('pay_obereg:')
     )

@@ -5,7 +5,7 @@ import asyncpg
 
 from bot.utils import check_expiration_date, get_new_expiration_date
 from config import (PG_PORT, POSTGRES_DB, POSTGRES_HOST, POSTGRES_PASSWORD,
-                    POSTGRES_USER, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT)
+                    POSTGRES_USER, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT, FREE_REQUESTS)
 
 
 async def create_pg_connection():
@@ -19,7 +19,7 @@ async def create_pg_connection():
     return conn
 
 
-async def create_redis_connection():
+async def get_redis():
     redis = await aioredis.create_redis_pool(
         (REDIS_HOST, REDIS_PORT),
         password=REDIS_PASSWORD,
@@ -66,7 +66,7 @@ async def check_subscription(user_id: int):
         "SELECT requests_count FROM users WHERE user_id = $1", user_id
     )
     if subscription_end is None:
-        if requests_count is None or requests_count < 50:
+        if requests_count is None or requests_count < FREE_REQUESTS:
             return True
         else:
             return False
