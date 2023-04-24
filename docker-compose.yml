@@ -1,8 +1,8 @@
-version: "3.8"
+version: "3.9"
 
 services:
   chatgpt-bot:
-    build: .
+    image: ponimon4ik/telegram_gpt:latest
     env_file:
       - .env
     restart: always
@@ -21,6 +21,7 @@ services:
     restart: always
   redis:
     image: redis:latest
+    container_name: redis
     env_file:
       - .env
     command: redis-server --requirepass ${REDIS_PASSWORD}

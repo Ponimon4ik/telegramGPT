@@ -2,7 +2,7 @@ from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from bot.db import check_subscription, update_requests_count
-from config import FREE_REQUESTS
+from config import FREE_REQUESTS_AMOUNT, IS_FREE_REQUESTS
 
 
 class CounterMiddleware(BaseMiddleware):
@@ -13,7 +13,7 @@ class CounterMiddleware(BaseMiddleware):
         subscription_status = await check_subscription(user_id)
         if requests_count is None:
             requests_count = 0
-        if requests_count > FREE_REQUESTS and not subscription_status:
+        if not IS_FREE_REQUESTS or (requests_count > FREE_REQUESTS_AMOUNT and not subscription_status):
             markup = InlineKeyboardMarkup()
             markup.add(InlineKeyboardButton(
                 text="Оплатить подписку", callback_data="pay_subscription")

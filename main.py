@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
@@ -7,6 +8,8 @@ from aiogram.utils import executor
 from config import BOT_TOKEN
 from bot.middlewares import CounterMiddleware
 from bot.handlers import register_handlers
+from bot.db import create_table_if_not_exists
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -18,5 +21,16 @@ dp.middleware.setup(CounterMiddleware())
 
 register_handlers(dp)
 
+
+async def main():
+    await create_table_if_not_exists()
+    await dp.skip_updates()
+    await dp.start_polling()
+
+
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(main())
+    finally:
+        loop.close()

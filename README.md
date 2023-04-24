@@ -44,16 +44,3 @@ FREE_REQUESTS=3 # количество бесплатных запросов
 ```
 docker-compose up -d
 ```
-
-Создать таблицу
-
-```
-docker container exec -t db psql -U <POSTGRESS_USER> -d <POSTGRES_DB>
-```
-```
-CREATE TABLE users (
-    user_id BIGINT PRIMARY KEY,
-    requests_count INTEGER,
-    subscription_end TIMESTAMP
-);
-```

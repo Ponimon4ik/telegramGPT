@@ -12,14 +12,14 @@ async def gpt_request(prompt: str):
             engine="text-davinci-003",
             prompt=prompt,
             temperature=0.8,
-            max_tokens=1000,
+            max_tokens=1500,
             top_p=1,
             frequency_penalty=0,
             presence_penalty=0
         )
         return response["choices"][0]["text"].strip()
     except Exception:
-        return "Извините, произошла ошибка при обработке вашего запроса."
+        return "Извините, произошла ошибка при обработке вашего запроса. Обратитесь к @stfbo"
 
 
 def check_expiration_date(expiration_date: datetime):

@@ -8,15 +8,14 @@ from bot.db import (check_subscription, create_user,
 from bot.keyboards import get_payment_keyboard
 from bot.states import SubscriptionStates
 from bot.utils import gpt_request
+from bot import content
 
 
 async def on_start(message: types.Message):
     user_id = message.from_user.id
     await create_user(user_id)
     await message.reply(
-        "Привет! Я бот, использующий ChatGPT 3.5. "
-        "У вас есть 3 бесплатных запроса, "
-        "после чего вам нужно будет оплатить подписку."
+        content.START_MESSAGE
     )
 
 
@@ -24,15 +23,15 @@ async def on_message(message: types.Message):
     user_id = message.from_user.id
     subscription_status = await check_subscription(user_id)
     if subscription_status:
+        reply = await message.reply(content.REQUEST_ACCEPTED)
         response = await gpt_request(message.text)
-        await message.reply(response)
+        await reply.edit_text(response)
     else:
         payment_keyboard = get_payment_keyboard(user_id)
         await message.reply(
             "Пожалуйста, оплатите подписку "
             "для продолжения использования бота.",
             reply_markup=payment_keyboard
-
         )
 
 
@@ -102,5 +101,5 @@ def register_handlers(dp):
     )
     dp.register_callback_query_handler(
         process_payment_tinkoff,
-        lambda c: c.data.startswith('pay_tinkoff:') or c.data.startswith('pay_obereg:')
+        lambda c: c.data.startswith('pay_tinkoff:') or c.data.startswith('pay_сbereg:')
     )

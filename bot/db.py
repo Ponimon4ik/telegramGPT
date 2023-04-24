@@ -1,11 +1,22 @@
 from datetime import timedelta
+import asyncio
 
 import aioredis
 import asyncpg
 
 from bot.utils import check_expiration_date, get_new_expiration_date
 from config import (PG_PORT, POSTGRES_DB, POSTGRES_HOST, POSTGRES_PASSWORD,
-                    POSTGRES_USER, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT, FREE_REQUESTS)
+                    POSTGRES_USER, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT, FREE_REQUESTS_AMOUNT,
+                    IS_FREE_REQUESTS)
+
+
+async def get_redis():
+    redis = await aioredis.create_redis_pool(
+        (REDIS_HOST, REDIS_PORT),
+        password=REDIS_PASSWORD,
+        encoding='utf-8'
+    )
+    return redis
 
 
 async def create_pg_connection():
@@ -19,13 +30,20 @@ async def create_pg_connection():
     return conn
 
 
-async def get_redis():
-    redis = await aioredis.create_redis_pool(
-        (REDIS_HOST, REDIS_PORT),
-        password=REDIS_PASSWORD,
-        encoding='utf-8'
+async def create_table_if_not_exists():
+    conn = await create_pg_connection()
+    is_exist = await conn.fetchval(
+        "SELECT EXISTS (SELECT FROM pg_tables "
+        "WHERE schemaname = 'public' AND tablename  = 'users');"
     )
-    return redis
+    if not is_exist:
+        await conn.execute(
+            'CREATE TABLE users ('
+            'user_id BIGINT PRIMARY KEY, '
+            'requests_count INTEGER, '
+            'subscription_end TIMESTAMP);'
+        )
+    await conn.close()
 
 
 async def create_user(user_id: int):
@@ -66,7 +84,7 @@ async def check_subscription(user_id: int):
         "SELECT requests_count FROM users WHERE user_id = $1", user_id
     )
     if subscription_end is None:
-        if requests_count is None or requests_count < FREE_REQUESTS:
+        if requests_count is None or IS_FREE_REQUESTS or requests_count < FREE_REQUESTS_AMOUNT:
             return True
         else:
             return False
