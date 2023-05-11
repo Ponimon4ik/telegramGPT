@@ -1,5 +1,5 @@
-from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.filters.state import State, StatesGroup
 
 
-class SubscriptionStates(StatesGroup):
-    waiting_for_payment = State()
+class ChatContext(StatesGroup):
+    dialog = State()

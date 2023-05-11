@@ -1,22 +1,58 @@
-import os
+from dataclasses import dataclass
 
-import dotenv
-
-dotenv.load_dotenv()
-
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHATGPT_TOKEN = os.getenv("CHATGPT_TOKEN")
-
-POSTGRES_USER = os.getenv("POSTGRES_USER")
-POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
-POSTGRES_HOST = os.getenv("POSTGRES_HOST")
-POSTGRES_DB = os.getenv("POSTGRES_DB")
-PG_PORT = os.getenv("PG_PORT")
+from environs import Env
 
 
-REDIS_HOST = os.getenv("REDIS_HOST")
-REDIS_PORT = os.getenv("REDIS_PORT")
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+@dataclass
+class DatabaseConfig:
+    pg_user: str
+    pg_password: str
+    pg_host: str
+    pg_database: str
+    pg_port: str
 
-IS_FREE_REQUESTS = os.getenv("FREE_REQUESTS")
-FREE_REQUESTS_AMOUNT = int(os.getenv('FREE_REQUESTS_AMOUNT'))
+
+@dataclass
+class RedisConfig:
+    rd_host: str
+    rd_port: str
+    rd_password: str
+
+
+@dataclass
+class TgBot:
+    token: str
+
+
+@dataclass
+class Config:
+    tg_bot: TgBot
+    db: DatabaseConfig
+    redis: RedisConfig
+    gpt_token: str
+
+
+def load_config(path: str | None = None) -> Config:
+    env: Env = Env()
+    env.read_env(path)
+    return Config(
+        tg_bot=TgBot(
+            token=env('BOT_TOKEN')
+        ),
+        db=DatabaseConfig(
+            pg_user=env('POSTGRES_USER'),
+            pg_password=env('POSTGRES_PASSWORD'),
+            pg_database=env('POSTGRES_DB'),
+            pg_host=env('POSTGRES_HOST'),
+            pg_port=env('PG_PORT')
+        ),
+        redis=RedisConfig(
+            rd_host=env('REDIS_HOST'),
+            rd_password=env('REDIS_PASSWORD'),
+            rd_port=env('REDIS_PORT')
+        ),
+        gpt_token=env('CHATGPT_TOKEN')
+    )
+
+
+config = load_config()

@@ -37,7 +37,6 @@ REDIS_HOST=redis_db
 REDIS_PORT=6379
 REDIS_PASSWORD=password
 
-FREE_REQUESTS=3 # количество бесплатных запросов
 ```
 
 Запустить docker-compose

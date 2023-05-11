@@ -1,30 +1,24 @@
-from datetime import datetime, timedelta
-
 import openai
 
-from config import CHATGPT_TOKEN
+from config import config
 
 
-async def gpt_request(prompt: str):
-    openai.api_key = CHATGPT_TOKEN
+async def gpt_conversation(conversation: list):
+    openai.api_key = config.gpt_token
     try:
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=prompt,
-            temperature=0.8,
-            max_tokens=1500,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0
+        response = openai.ChatCompletion.create(
+            model='gpt-3.5-turbo',
+            messages=conversation
         )
-        return response["choices"][0]["text"].strip()
-    except Exception:
-        return "Извините, произошла ошибка при обработке вашего запроса. Обратитесь к @stfbo"
-
-
-def check_expiration_date(expiration_date: datetime):
-    return datetime.now() < expiration_date
-
-
-def get_new_expiration_date():
-    return datetime.now() + timedelta(days=30)
+    except Exception as mistake:
+        raise ConnectionError(mistake)
+    conversation.append(
+        {
+            'role': response.choices[0].message.role,
+            'content': response.choices[0].message.content
+        }
+    )
+    total_tokens = response['usage']['total_tokens']
+    if total_tokens > 3800:
+        del conversation[0]
+    return conversation
