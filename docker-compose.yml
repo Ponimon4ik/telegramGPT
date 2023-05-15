@@ -3,6 +3,7 @@ version: "3.9"
 services:
   chatgpt-bot:
     image: ponimon4ik/telegram_gpt:latest
+#    build: .
     env_file:
       - .env
     restart: always

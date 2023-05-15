@@ -7,7 +7,7 @@ from config import config
 
 async def gpt_conversation(conversation: list):
     openai.api_key = config.gpt_token
-    for _ in range(4):
+    for _ in range(10):
         try:
             response = openai.ChatCompletion.create(
                 model='gpt-3.5-turbo',
@@ -15,7 +15,7 @@ async def gpt_conversation(conversation: list):
             )
             break
         except Exception:
-            time.sleep(2)
+            time.sleep(20)
     else:
         raise ConnectionError()
     conversation.append(
