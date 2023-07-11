@@ -7,10 +7,12 @@ from aiogram.fsm.storage.redis import RedisStorage, Redis
 
 from config import config
 from bot.handlers import user_handlers
+from bot.db import create_table_if_not_exists
 
 
 async def main() -> None:
     logging.basicConfig(level=logging.INFO)
+    await create_table_if_not_exists()
     redis: Redis = Redis(
         host=config.redis.rd_host,
         password=config.redis.rd_password,

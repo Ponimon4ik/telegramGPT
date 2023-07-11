@@ -8,6 +8,7 @@ from bot.keyboards import reset_context_keyboard
 from bot.lexicon import get_lexicon
 from bot.states import ChatContext
 from bot.utils import gpt_conversation
+from bot.db import create_user, update_requests_count
 
 router: Router = Router()
 
@@ -15,6 +16,7 @@ router: Router = Router()
 @router.message(CommandStart(), StateFilter(default_state))
 @router.message(CommandStart(), StateFilter(ChatContext.dialog))
 async def cmd_start(message: Message, state: FSMContext):
+    await create_user(message.from_user.id)
     content = get_lexicon(message.from_user.language_code)
     await message.answer(content.START_MESSAGE)
     await state.set_state(ChatContext.dialog)
@@ -41,6 +43,7 @@ async def process_message_have_no_text(message: Message):
 @router.message(StateFilter(default_state))
 @router.message(StateFilter(ChatContext.dialog))
 async def process_dialog_with_gpt(message: Message, state: FSMContext):
+    await update_requests_count(message.from_user.id)
     check_state = await state.get_state()
     if check_state is None:
         await state.set_state(ChatContext.dialog)

@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 
 from environs import Env
@@ -29,7 +30,7 @@ class Config:
     tg_bot: TgBot
     db: DatabaseConfig
     redis: RedisConfig
-    gpt_token: str
+    gpt_tokens: list
 
 
 def load_config(path: str | None = None) -> Config:
@@ -51,7 +52,7 @@ def load_config(path: str | None = None) -> Config:
             rd_password=env('REDIS_PASSWORD'),
             rd_port=env('REDIS_PORT')
         ),
-        gpt_token=env('CHATGPT_TOKEN')
+        gpt_tokens=json.loads(env('CHATGPT_TOKEN'))
     )
 
 

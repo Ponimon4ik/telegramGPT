@@ -2,8 +2,8 @@ version: "3.9"
 
 services:
   chatgpt-bot:
-    image: ponimon4ik/telegram_gpt:latest
-#    build: .
+#    image: ponimon4ik/telegram_gpt:latest
+    build: .
     env_file:
       - .env
     restart: always
@@ -20,3 +20,13 @@ services:
       - ./redis-data:/data
     ports:
       - "6379:6379"
+
+  db:
+    image: postgres:13.0-alpine
+    volumes:
+      - ./pg-data:/var/lib/postgresql/data/
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - "5432:5432"
