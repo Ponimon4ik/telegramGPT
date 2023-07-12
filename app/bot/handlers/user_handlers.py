@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
 from aiogram.types import CallbackQuery, Message
 
-from bot.keyboards import reset_context_keyboard
+from bot.keyboards import get_reset_context_keyboard
 from bot.lexicon import get_lexicon
 from bot.states import ChatContext
 from bot.utils import gpt_conversation
@@ -61,5 +61,6 @@ async def process_dialog_with_gpt(message: Message, state: FSMContext):
         await message.answer(text=content.GPT_ERROR)
         return
     await waiting_message.edit_text(
-        text=conversation[-1]['content'], reply_markup=reset_context_keyboard)
+        text=conversation[-1]['content'],
+        reply_markup=get_reset_context_keyboard(content.BUTTON_RESET_TEXT))
     await state.update_data(conversation=conversation)

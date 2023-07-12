@@ -23,6 +23,7 @@ class RedisConfig:
 @dataclass
 class TgBot:
     token: str
+    admin_ids: list
 
 
 @dataclass
@@ -38,7 +39,8 @@ def load_config(path: str | None = None) -> Config:
     env.read_env(path)
     return Config(
         tg_bot=TgBot(
-            token=env('BOT_TOKEN')
+            token=env('BOT_TOKEN'),
+            admin_ids=json.loads(env('ADMIN_IDS'))
         ),
         db=DatabaseConfig(
             pg_user=env('POSTGRES_USER'),
@@ -52,7 +54,7 @@ def load_config(path: str | None = None) -> Config:
             rd_password=env('REDIS_PASSWORD'),
             rd_port=env('REDIS_PORT')
         ),
-        gpt_tokens=json.loads(env('CHATGPT_TOKEN'))
+        gpt_tokens=json.loads(env('CHATGPT_TOKENS'))
     )
 
 

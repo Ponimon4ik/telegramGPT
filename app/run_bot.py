@@ -6,7 +6,7 @@ from aiogram.fsm.storage.redis import RedisStorage, Redis
 
 
 from config import config
-from bot.handlers import user_handlers
+from bot.handlers import user_handlers, admin_handlers
 from bot.db import create_table_if_not_exists
 
 
@@ -21,6 +21,7 @@ async def main() -> None:
     bot: Bot = Bot(token=config.tg_bot.token)
     storage: RedisStorage = RedisStorage(redis=redis)
     dp: Dispatcher = Dispatcher(storage=storage)
+    dp.include_router(admin_handlers.router)
     dp.include_router(user_handlers.router)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)

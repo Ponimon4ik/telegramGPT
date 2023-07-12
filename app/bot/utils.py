@@ -6,12 +6,12 @@ from config import config
 
 MAX_RETRIES = len(config.gpt_tokens) + 10
 
-api_keys = config.gpt_tokens  # список ваших API-ключей
+api_keys = config.gpt_tokens  # список API-ключей
 current_key_index = 0  # индекс текущего используемого ключа
 last_request_time = 0  # время последнего запроса
 
 
-def _get_api_key(next_key=False):
+async def _get_api_key(next_key=False):
     global current_key_index, last_request_time
 
     current_time = time.time()
@@ -30,16 +30,18 @@ def _get_api_key(next_key=False):
 
 
 async def gpt_conversation(conversation: list):
-    openai.api_key = _get_api_key()
+    openai.api_key = await _get_api_key()
     for _ in range(MAX_RETRIES):
         try:
             response = openai.ChatCompletion.create(
                 model='gpt-3.5-turbo',
-                messages=conversation
+                messages=conversation,
+                temperature=0.75
+
             )
             break
         except Exception:
-            openai.api_key = _get_api_key(next_key=True)
+            openai.api_key = await _get_api_key(next_key=True)
     else:
         raise ConnectionError()
     conversation.append(

@@ -25,7 +25,7 @@ async def create_table_if_not_exists():
             'CREATE TABLE users ('
             'user_id BIGINT PRIMARY KEY, '
             'requests_count INTEGER, '
-            'created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);'
+            'created_date DATE NOT NULL DEFAULT CURRENT_DATE);'
         )
     await conn.close()
 
@@ -56,3 +56,22 @@ async def update_requests_count(user_id: int):
     )
     await conn.close()
     return requests_count
+
+
+async def get_statistics():
+    conn = await create_pg_connection()
+    results = await conn.fetch(
+        "SELECT created_date, COUNT(*) AS user_count, SUM(requests_count) AS total_requests_count "
+        "FROM users "
+        "GROUP BY created_date;"
+    )
+    await conn.close()
+    statistics = [['date', 'new_users', 'total_requests']]
+    for row in results:
+        formatted_row = [
+            f"{row['created_date']:%Y-%m-%d}",
+            row['user_count'],
+            row['total_requests_count']
+        ]
+        statistics.append(formatted_row)
+    return statistics

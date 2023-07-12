@@ -8,6 +8,6 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 
-COPY . .
+COPY .. .
 
 CMD ["python", "run_bot.py"]
