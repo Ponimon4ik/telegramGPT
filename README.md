@@ -37,6 +37,8 @@ REDIS_HOST=redis_db
 REDIS_PORT=6379
 REDIS_PASSWORD=password
 
+ADMIN_IDS=[1299121, 102003012, ...]
+
 ```
 
 Запустить docker-compose
