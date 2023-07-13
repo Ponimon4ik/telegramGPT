@@ -18,7 +18,7 @@ router: Router = Router()
 @router.message(CommandStart(), StateFilter(ChatContext.dialog))
 async def cmd_start(message: Message, state: FSMContext):
     await create_user_if_not_exist(message.from_user.id)
-    content = get_lexicon(message.from_user.language_code)
+    content = await get_lexicon(message.from_user.language_code)
     await message.answer(content.START_MESSAGE)
     await state.set_state(ChatContext.dialog)
 
@@ -28,7 +28,7 @@ async def cmd_cancel_state(callback: CallbackQuery, state: FSMContext):
     await callback.answer(text='🧹🧹🧹')
     await state.clear()
     await state.set_state(ChatContext.dialog)
-    content = get_lexicon(callback.from_user.language_code)
+    content = await get_lexicon(callback.from_user.language_code)
     await callback.message.answer(
         text=content.CONTEXT_RESET
     )
@@ -37,7 +37,7 @@ async def cmd_cancel_state(callback: CallbackQuery, state: FSMContext):
 @router.message(StateFilter(default_state), ~F.text)
 @router.message(StateFilter(ChatContext.dialog), ~F.text)
 async def process_message_have_no_text(message: Message):
-    content = get_lexicon(message.from_user.language_code)
+    content = await get_lexicon(message.from_user.language_code)
     await message.reply(text=content.NO_TEXT)
 
 
