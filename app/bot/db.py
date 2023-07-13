@@ -30,7 +30,7 @@ async def create_table_if_not_exists():
     await conn.close()
 
 
-async def create_user(user_id: int):
+async def create_user_if_not_exist(user_id: int):
     conn = await create_pg_connection()
     user = await conn.fetchrow(
         "SELECT * FROM users WHERE user_id = $1", user_id)
@@ -45,6 +45,7 @@ async def create_user(user_id: int):
 
 async def update_requests_count(user_id: int):
     conn = await create_pg_connection()
+    await create_user_if_not_exist(user_id)
     await conn.execute(
         "UPDATE users SET requests_count = "
         "requests_count + 1 WHERE user_id = $1",
