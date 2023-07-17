@@ -22,4 +22,7 @@ async def cmd_start(message: Message):
 
 @router.message(Command(commands=['keys']))
 async def cmd_keys(message: Message):
-    await message.answer(tabulate(no_quota_keys))
+    if no_quota_keys:
+        await message.answer(text=tabulate(no_quota_keys))
+    else:
+        await message.answer(text='Все ключи в порядке')
