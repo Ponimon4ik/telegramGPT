@@ -1,3 +1,4 @@
+import logging
 import time
 
 import openai
@@ -9,6 +10,7 @@ MAX_RETRIES = len(config.gpt_tokens) + 10
 api_keys = config.gpt_tokens  # список API-ключей
 current_key_index = 0  # индекс текущего используемого ключа
 last_request_time = 0  # время последнего запроса
+no_quota_keys = []
 
 
 async def _get_api_key(next_key=False):
@@ -33,13 +35,17 @@ async def gpt_conversation(conversation: list):
     openai.api_key = await _get_api_key()
     for _ in range(MAX_RETRIES):
         try:
-            response = openai.ChatCompletion.create(
+            response = await openai.ChatCompletion.acreate(
                 model='gpt-3.5-turbo',
                 messages=conversation,
                 temperature=0.75
 
             )
             break
+        except openai.error.RateLimitError:
+            logging.critical(f'Key {openai.api_key}')
+            no_quota_keys.append([openai.api_key])
+            openai.api_key = await _get_api_key(next_key=True)
         except Exception:
             openai.api_key = await _get_api_key(next_key=True)
     else:

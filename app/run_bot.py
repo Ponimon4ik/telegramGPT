@@ -11,7 +11,7 @@ from bot.db import create_table_if_not_exists
 
 
 async def main() -> None:
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.ERROR)
     await create_table_if_not_exists()
     redis: Redis = Redis(
         host=config.redis.rd_host,
